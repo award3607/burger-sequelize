@@ -1,28 +1,37 @@
 var express = require('express');
 
 var router = express.Router();
-var burger = require('../models/burger.js');
+var Burger = require('../models').burger;
 
 router.get('/', (req, res) => {
-	burger.all(data => {
+	Burger.findAll({}).then(data => {
 		res.render('index', {burgers: data});
 	});
 });
 
 router.get('/api/burgers', (req, res) => {
-	burger.all(data => {
+	Burger.findAll({}).then(data => {
 		res.status(200).json(data);
 	});
 });
 
 router.post('/api/burgers', (req, res) => {
-	burger.create(['burger_name', 'devoured'], [req.body.burger_name, req.body.devoured], result => {
-		res.status(201).json({id: result.insertId});
+	Burger.create({
+		burger_name: req.body.burger_name,
+		devoured: req.body.devoured
+	}).then(result => {
+		res.status(201).json({id: result.id});
 	});
 });
 
 router.put('/api/burgers/:id', (req, res) => {
-	burger.update(['devoured'], [req.body.devoured], req.params.id, result => {
+	Burger.update({
+		devoured: req.body.devoured
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(result => {
 		if (result.changedRows == 0) {
 			return res.status(404).end();
 		}
